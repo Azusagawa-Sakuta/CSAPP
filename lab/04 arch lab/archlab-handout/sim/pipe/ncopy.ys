@@ -1,0 +1,163 @@
+#/* $begin ncopy-ys */
+##################################################################
+# ncopy.ys - Copy a src block of len words to dst.
+# Return the number of positive words (>0) contained in src.
+#
+# Include your name and ID here.
+#
+# Describe how and why you modified the baseline code.
+#
+##################################################################
+# Do not modify this portion
+# Function prologue.
+# %rdi = src, %rsi = dst, %rdx = len
+ncopy:
+
+##################################################################
+# You can modify this portion
+    iaddq $-8, %rdx             # 0 1 2 3 4 5 6 7
+    mrmovq (%rdi), %r8
+    jge Loop
+DealRemainder:
+    iaddq $4, %rdx              # -8 -7 -6 -5
+    jge four2seven              # -4 -3 -2 -1
+    iaddq $3, %rdx              # -4 -3
+    jg two2three                # -1 0
+    je one
+    halt
+four2seven:                     # 0 1 2 3
+    iaddq $-2, %rdx             # -2 -1 0 1
+    jl four2five                # 0 1
+    jg seven
+    jmp six
+two2three:                      # 1 2
+    iaddq $-1, %rdx
+    mrmovq 0x8(%rdi), %r9
+    jle two
+    mrmovq 0x10(%rdi), %r10
+    jmp three
+four2five:
+    iaddq $1, %rdx
+    mrmovq 0x18(%rdi), %r11
+    mrmovq 0x10(%rdi), %r10
+    mrmovq 0x8(%rdi), %r9
+    jl four
+    mrmovq 0x20(%rdi), %r12
+    jmp five
+Loop:
+    mrmovq 0x38(%rdi), %rbx
+    mrmovq 0x30(%rdi), %r14
+    mrmovq 0x28(%rdi), %r13
+    mrmovq 0x20(%rdi), %r12
+    mrmovq 0x18(%rdi), %r11
+    mrmovq 0x10(%rdi), %r10
+    mrmovq 0x8(%rdi), %r9
+    andq %rbx, %rbx
+    rmmovq %rbx, 0x38(%rsi)
+    jle Mv7
+    iaddq $1, %rax
+Mv7:
+    andq %r14, %r14
+    rmmovq %r14, 0x30(%rsi)
+    jle Mv6
+    iaddq $1, %rax
+Mv6:
+    andq %r13, %r13
+    rmmovq %r13, 0x28(%rsi)
+    jle Mv5
+    iaddq $1, %rax
+Mv5:
+    andq %r12, %r12
+    rmmovq %r12, 0x20(%rsi)
+    jle Mv4
+    iaddq $1, %rax
+Mv4:
+    andq %r11, %r11
+    rmmovq %r11, 0x18(%rsi)
+    jle Mv3
+    iaddq $1, %rax
+Mv3:
+    andq %r10, %r10
+    rmmovq %r10, 0x10(%rsi)
+    jle Mv2
+    iaddq $1, %rax
+Mv2:
+    andq %r9, %r9
+    rmmovq %r9, 0x8(%rsi)
+    jle Mv1
+    iaddq $1, %rax
+Mv1:
+    andq %r8, %r8
+    rmmovq %r8, (%rsi)
+    jle Mv0
+    iaddq $1, %rax
+Mv0:
+    iaddq $64, %rdi         # src += 8;
+    iaddq $64, %rsi         # dst += 8;
+    iaddq $-8, %rdx
+    mrmovq (%rdi), %r8
+    jge Loop
+    jmp DealRemainder
+seven:
+    mrmovq 0x30(%rdi), %r14
+    mrmovq 0x28(%rdi), %r13
+    mrmovq 0x20(%rdi), %r12
+    mrmovq 0x18(%rdi), %r11
+    mrmovq 0x10(%rdi), %r10
+    mrmovq 0x8(%rdi), %r9
+    andq %r14, %r14
+    rmmovq %r14, 0x30(%rsi)
+    jle M6
+    iaddq $1, %rax
+six:
+    mrmovq 0x28(%rdi), %r13
+    mrmovq 0x20(%rdi), %r12
+    mrmovq 0x18(%rdi), %r11
+    mrmovq 0x10(%rdi), %r10
+    mrmovq 0x8(%rdi), %r9
+M6:
+    andq %r13, %r13
+    rmmovq %r13, 0x28(%rsi)
+    jle M5
+    iaddq $1, %rax
+five:
+M5:
+    andq %r12, %r12
+    rmmovq %r12, 0x20(%rsi)
+    jle M4
+    iaddq $1, %rax
+four:
+M4:
+    andq %r11, %r11
+    rmmovq %r11, 0x18(%rsi)
+    jle M3
+    iaddq $1, %rax
+three:
+M3:
+    andq %r10, %r10
+    rmmovq %r10, 0x10(%rsi)
+    jle M2
+    iaddq $1, %rax
+two:
+M2:
+    andq %r9, %r9
+    rmmovq %r9, 0x8(%rsi)
+    jle M1
+    iaddq $1, %rax
+one:
+M1:
+    andq %r8, %r8
+    rmmovq %r8, (%rsi)
+    jle 0x31
+    iaddq $1, %rax
+zero:
+
+##################################################################
+# Do not modify the following section of code
+# Function epilogue.
+Done:
+	ret
+##################################################################
+# Keep the following label at the end of your function
+End:
+#/* $end ncopy-ys */
